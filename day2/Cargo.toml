@@ -5,3 +5,4 @@ authors = ["Raymond Gasper <rgasper@netprospex.com>"]
 edition = "2018"
 
 [dependencies]
+edit-distance = "2.1.0"
