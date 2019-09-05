@@ -1,31 +1,25 @@
 use std::fs;
-use std::collections::HashMap;
-use std::cmp::Ordering;
+use edit_distance::edit_distance;
 
 fn main() {
-    let mut doubles = 0;
-    let mut triples = 0;
+    let mut seen: Vec<String> = Vec::new();
     let data = fs::read_to_string("input")
         .expect("Unable to read file");
+    // This is O(N**2), is there a way to do this better?
     for box_tag in data.split("\n") {
-        let mut counts: HashMap<char,u32> = HashMap::new();
-        for letter in box_tag.chars() {
-            *counts.entry(letter).or_insert(0) += 1;
-        }
-        let mut flag2 = false;
-        let mut flag3 = false;
-        for v in counts.values() {
-            match v.cmp(&2) {
-                Ordering::Equal => flag2 = true,
-                _ => (),
-            }
-            match v.cmp(&3) {
-                Ordering::Equal => flag3 = true,
-                _ => (),
+        for seen_tag in &seen {
+            if edit_distance(seen_tag, box_tag) == 1 {
+                println!("Found two strings that differ by only one character: {} {}",seen_tag, box_tag);
+                // this loop is also O(N**2), but N is small and will only happen once, so is not SO bad.
+                let mut accumulator = String::new();
+                for char_b in box_tag.chars() {
+                    for char_s in seen_tag.chars() {
+                        if char_b == char_s { accumulator.push(char_b); break }
+                    }
+                }
+                println!("string of shared chars {}", accumulator)
             }
         }
-        if flag2 {doubles += 1};
-        if flag3 {triples += 1};
+        &seen.push(box_tag.to_string());
     }
-    println!("Doubles {}, Triples {}, checksum {}", doubles, triples, doubles*triples );
 }
