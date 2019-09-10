@@ -46,9 +46,9 @@ fn build_claim(identity: i32, origin: Point, width: i32, height: i32) -> Claim {
 
 fn build_claim_from_text(text: &str) -> Result<Claim, std::num::ParseIntError> {
     // input string looks like this "#id @ x,y: WxH"
-    lazy_static! {
+    lazy_static! { // lazy static so we garauntee we only compile the RE once.
        static ref RE: Regex = Regex::new(r"#(\d+) @ (\d+),(\d+): (\d+)x(\d+)")
-                                .unwrap();
+                                     .unwrap();
     }
 
     let caps = RE.captures(text).unwrap();
