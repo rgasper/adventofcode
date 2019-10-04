@@ -1,12 +1,10 @@
 #[macro_use] extern crate lazy_static;
 pub mod claim {
     //imports
-    use std::cmp::{max, min};
     extern crate regex;
     use regex::Regex;
     use std::sync::atomic::{AtomicUsize, Ordering};
     use lazy_static;
-    use std::collections::HashSet;
     
     //statics
     static AUTO_INCREMENT: AtomicUsize = AtomicUsize::new(0);
@@ -21,7 +19,6 @@ pub mod claim {
         origin: Point,
         width: i32,
         height: i32,
-        pub overlaps_with: HashSet<usize>,
     }
 
     // struct methods
@@ -33,22 +30,6 @@ pub mod claim {
 
         pub fn area(&self ) -> i32 {
             self.width * self.height
-        }
-
-        pub fn overlapping_claim(&self, other: &Claim) -> Option<Claim> {
-            // returns a new claim that is the overlap of self and other
-            let topleft  = Point( max(self.origin.0, other.origin.0), 
-                                  max(self.origin.1, other.origin.1)
-                                );
-            let botright = Point( min(self.origin.0 + self.width, other.origin.0 + other.width),
-                                  min(self.origin.1 + self.height, other.origin.1 + other.height)
-                                );
-            let overlap = build_claim(topleft.clone(), botright.0-topleft.0, botright.1-topleft.1);
-            if overlap.area() > 0 {
-                Some(overlap)
-            } else {
-                None
-            }
         }
     }
 
@@ -65,18 +46,18 @@ pub mod claim {
     //builders
     pub fn build_claim(origin: Point, width: i32, height: i32) -> Claim {
         let identity = AUTO_INCREMENT.fetch_add(1, Ordering::SeqCst);
-        let overlaps_with = HashSet::new();
         Claim {
             identity,
             origin,
             width,
             height,
-            overlaps_with,
         }
     }
 
+    //NOTE(rgasper) use a custom error instead of this innacurate error once I know how to make a new error
     pub fn build_claim_from_text(text: &str) -> Result<Claim, std::num::ParseIntError> {
         // input string looks like this "#id @ x,y: WxH"
+        // only compile the regex a single time
         lazy_static! {
             static ref RE: Regex = Regex::new(r"#(\d+) @ (\d+),(\d+): (\d+)x(\d+)")
                                     .unwrap();
