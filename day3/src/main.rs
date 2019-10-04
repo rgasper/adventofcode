@@ -1,62 +1,27 @@
 use std::fs;
-#[macro_use] extern crate lazy_static;
-extern crate regex;
-use regex::Regex;
+use day3::claim;
 
 fn main() {
+
     let data = fs::read_to_string("easy_input")
                    .expect("Unable to read input file");
-    let claims: Vec<Claim> = data.split("\n")
-                                 .map(|text| build_claim_from_text(text).unwrap())
+
+    let claims: Vec<claim::Claim> = data.split("\n")
+                                 .map(|text| claim::build_claim_from_text(text).unwrap())
                                  .collect();
-    for c in claims {
-        println!{"{}", c}
-    }
-}
 
-#[derive(Debug)]
-struct Point(i32, i32);
+    let mut overlap_claims: Vec<claim::Claim> = Vec::new();
 
-#[derive(Debug)]
-struct Claim {
-    identity: i32,
-    origin: Point,
-    width: i32,
-    height: i32,
-}
+    let claims_copy = claims.to_vec();
 
-impl std::fmt::Display for Claim {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "#{} @ {},{}: {}x{}", self.identity,
-                                        self.origin.0,
-                                        self.origin.1,
-                                        self.width,
-                                        self.height)
-    }
-}
+    // how do I do this?
+    for this_claim in claims {
+        for other_claim in claims_copy {
+            if (this_claim != other_claim) && !(this_claim.overlaps_with.contains(&other_claim.identity()))  {
+                if let Some(over) = this_claim.overlapping_claim(&other_claim) {
+                    overlap_claims.push(over);
+                    this_claim.overlaps_with.insert(other_claim.identity());
+                    other_claim.overlaps_with.insert(this_claim.identity());
+    }}}}
 
-fn build_claim(identity: i32, origin: Point, width: i32, height: i32) -> Claim {
-    Claim {
-        identity,
-        origin,
-        width,
-        height,
-    }
-}
-
-fn build_claim_from_text(text: &str) -> Result<Claim, std::num::ParseIntError> {
-    // input string looks like this "#id @ x,y: WxH"
-    lazy_static! { // lazy static so we garauntee we only compile the RE once.
-       static ref RE: Regex = Regex::new(r"#(\d+) @ (\d+),(\d+): (\d+)x(\d+)")
-                                     .unwrap();
-    }
-
-    let caps = RE.captures(text).unwrap();
-    let id = caps.get(1).unwrap().as_str().parse::<i32>()?;
-    let x = caps.get(2).unwrap().as_str().parse::<i32>()?;
-    let y = caps.get(3).unwrap().as_str().parse::<i32>()?;
-    let w = caps.get(4).unwrap().as_str().parse::<i32>()?;
-    let h = caps.get(5).unwrap().as_str().parse::<i32>()?;
-    
-    Ok(build_claim(id, Point(x,y), w, h))
 }
