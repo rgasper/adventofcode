@@ -1,27 +1,32 @@
 use std::fs;
-use day3::claim;
+use day3::{claim};
+use ndarray::{Array, s};
 
 fn main() {
 
-    let data = fs::read_to_string("easy_input")
+    let data = fs::read_to_string("input")
                    .expect("Unable to read input file");
 
-    let claims: Vec<claim::Claim> = data.split("\n")
-                                 .map(|text| claim::build_claim_from_text(text).unwrap())
-                                 .collect();
+    let claims: Vec<claim::Claim> = data.split('\n')
+                                        .map(|text| claim::build_claim_from_text(text).unwrap())
+                                        .collect();
+    let size = (1000,1000);
+    let mut cloth = Array::from_elem(size, 0u32);
+    
+    for claim in claims {
+        let xlo = claim.origin.0;
+        let ylo = claim.origin.1;
+        let xhi = xlo+claim.width;
+        let yhi = ylo+claim.height;
 
-    let mut overlap_claims: Vec<claim::Claim> = Vec::new();
+        let mut s = cloth.slice_mut(s![xlo..xhi, ylo..yhi]);
+        s += 1;
+    }
 
-    let claims_copy = claims.to_vec();
-
-    // how do I do this?
-    for this_claim in claims {
-        for other_claim in claims_copy {
-            if (this_claim != other_claim) && !(this_claim.overlaps_with.contains(&other_claim.identity()))  {
-                if let Some(over) = this_claim.overlapping_claim(&other_claim) {
-                    overlap_claims.push(over);
-                    this_claim.overlaps_with.insert(other_claim.identity());
-                    other_claim.overlaps_with.insert(this_claim.identity());
-    }}}}
-
+    let shared: u32 = cloth.iter()
+                           .filter( |x| x > &&1u32 )
+                           .map( |_x| 1 )
+                           .sum();
+    //println!("{}", cloth);
+    println!("{} square inches of fabric are shared", shared);
 }

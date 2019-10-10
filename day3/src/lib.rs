@@ -1,4 +1,14 @@
 #[macro_use] extern crate lazy_static;
+
+// NOTE(rgasper) unused
+pub fn try_i32_to_usize(i:i32) -> Option<usize> {
+    if   (i < std::usize::MIN as i32) | (i > std::usize::MAX as i32) {
+        None
+    } else {
+        Some(i as usize)
+    }
+}
+
 pub mod claim {
     //imports
     extern crate regex;
@@ -10,15 +20,15 @@ pub mod claim {
     static AUTO_INCREMENT: AtomicUsize = AtomicUsize::new(0);
     // structs
     #[derive(Debug, PartialEq, Eq, PartialOrd, Copy, Clone)]
-    pub struct Point(i32, i32);
+    pub struct Point(pub i32, pub i32);
 
     #[derive(Debug, PartialEq, Eq, Clone)]
     pub struct Claim {
-        // claim identity is assigned on instantiation using AUTO_INCREMENT
-        identity: usize,
-        origin: Point,
-        width: i32,
-        height: i32,
+        // distinct identity is assigned at build time in build_claim
+        pub identity: usize,
+        pub origin: Point,
+        pub width: i32,
+        pub height: i32,
     }
 
     // struct methods
@@ -43,6 +53,7 @@ pub mod claim {
         }
     }
 
+
     //builders
     pub fn build_claim(origin: Point, width: i32, height: i32) -> Claim {
         let identity = AUTO_INCREMENT.fetch_add(1, Ordering::SeqCst);
@@ -65,7 +76,7 @@ pub mod claim {
         let caps: Vec<i32> = RE.captures(text)
                                 .unwrap()
                                 .iter()
-                                .map(|cap| cap.unwrap().as_str().parse::<i32>().unwrap_or(0)) // I expect failure in capture 0 every time
+                                .map(|cap| cap.unwrap().as_str().parse::<i32>().unwrap_or(0)) // capture zero is the entire string, so it will fail and turn into 0
                                 .collect();
 
         let _id = caps[1];
