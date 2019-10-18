@@ -17,18 +17,18 @@ pub mod claim {
     use lazy_static;
     
     //statics
-    static AUTO_INCREMENT: AtomicUsize = AtomicUsize::new(0);
+    static AUTO_INCREMENT: AtomicUsize = AtomicUsize::new(1);
     // structs
     #[derive(Debug, PartialEq, Eq, PartialOrd, Copy, Clone)]
-    pub struct Point(pub i32, pub i32);
+    pub struct Point(pub usize, pub usize);
 
     #[derive(Debug, PartialEq, Eq, Clone)]
     pub struct Claim {
         // distinct identity is assigned at build time in build_claim
         pub identity: usize,
         pub origin: Point,
-        pub width: i32,
-        pub height: i32,
+        pub width: usize,
+        pub height: usize,
     }
 
     // struct methods
@@ -38,7 +38,7 @@ pub mod claim {
             self.identity
         }
 
-        pub fn area(&self ) -> i32 {
+        pub fn area(&self ) -> usize {
             self.width * self.height
         }
     }
@@ -55,7 +55,7 @@ pub mod claim {
 
 
     //builders
-    pub fn build_claim(origin: Point, width: i32, height: i32) -> Claim {
+    pub fn build_claim(origin: Point, width: usize, height: usize) -> Claim {
         let identity = AUTO_INCREMENT.fetch_add(1, Ordering::SeqCst);
         Claim {
             identity,
@@ -73,10 +73,10 @@ pub mod claim {
             static ref RE: Regex = Regex::new(r"#(\d+) @ (\d+),(\d+): (\d+)x(\d+)")
                                     .unwrap();
         }
-        let caps: Vec<i32> = RE.captures(text)
+        let caps: Vec<usize> = RE.captures(text)
                                 .unwrap()
                                 .iter()
-                                .map(|cap| cap.unwrap().as_str().parse::<i32>().unwrap_or(0)) // capture zero is the entire string, so it will fail and turn into 0
+                                .map(|cap| cap.unwrap().as_str().parse::<usize>().unwrap_or(0)) // capture zero is the entire string, so it will fail and turn into 0
                                 .collect();
 
         let _id = caps[1];
