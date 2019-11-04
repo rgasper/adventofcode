@@ -1,0 +1,11 @@
+[package]
+name = "day4"
+version = "0.1.0"
+authors = ["Raymond Gasper <raymond.j.gasper@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+regex = "1"
+lazy_static = "1.4.0"
+ndarray = "0.12.0"
+datetime = "0.4.7"
