@@ -1,7 +1,10 @@
+//! Minigrep
+//! a limited text search tool
 use std::error::Error;
 use std::fs;
 use std::env;
 
+/// Contains configuration arguments
 pub struct Config {
     pub query: String,
     pub filename: String,
@@ -9,6 +12,7 @@ pub struct Config {
 }
 
 impl Config {
+    /// build a new Config
     pub fn new(mut args : std::env::Args) -> Result<Config, &'static str> {
         if args.len() < 3 {
             return Err("not enough arguments");
@@ -27,12 +31,36 @@ impl Config {
     }
 }
 
+/// case-sensitive search for query in lines of contents
+/// # Examples
+/// ```
+/// use minigrep::search;
+/// let a = "hello
+/// world
+/// HEAT
+/// hotdog
+/// hey";
+/// let b = vec!["hello","hey"];
+/// assert_eq!(search("he",a), b);
+/// ```
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     contents.lines()
             .filter(|line| line.contains(query))
             .collect()
 }
 
+/// case-insensitive search for query in lines of contents
+/// # Examples
+/// ```
+/// use minigrep::search_case_insensitive;
+/// let a = "hello
+/// world
+/// HEAT
+/// hotdog
+/// hey";
+/// let b = vec!["hello", "HEAT", "hey"];
+/// assert_eq!(search_case_insensitive("he",a), b);
+/// ```
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let lcase_query = query.to_lowercase();
     contents.lines()
