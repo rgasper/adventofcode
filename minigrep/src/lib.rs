@@ -34,18 +34,12 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
 }
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    
-    let mut results = Vec::new();
     let lcase_query = query.to_lowercase();
-
-    for line in contents.lines() {
-        if line.to_lowercase().contains(&lcase_query) {
-            results.push(line)
-        }
-    }
-
-    results
+    contents.lines()
+            .filter(|line| line.to_lowercase().contains(&lcase_query))
+            .collect()
 }
+
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.filename)?;
