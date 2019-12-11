@@ -23,7 +23,7 @@ impl Config {
         };
         let filename = match args.next() {
             Some(arg) => arg,
-            None => return Err("no query string found in args")
+            None => return Err("no filename string found in args")
         };
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
         
